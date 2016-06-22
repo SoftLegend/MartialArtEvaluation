@@ -6,18 +6,19 @@ from main_ui import Ui_Main
 from monitor_ctl import Monitor_Ctl
 
 class Main_ctl(QtGui.QDialog):
-    memoria = None
-
     def __init__(self):
         super(Main_ctl, self).__init__()
         self.ui = Ui_Main()
         self.ui.setupUi(self)
 
         # Connect events
-        self._setupEvents()
+        self._setupGUI()
 
-        # Initialize GUI values
+    def _setupGUI(self):
+        self._setupEvents()
         self.resetGUI()
+
+        self.ui.btnStart.setFocus()
 
     def _setupEvents(self):
         self.ui.btnReset.clicked.connect(self.resetGUI)
@@ -28,23 +29,23 @@ class Main_ctl(QtGui.QDialog):
         force = self.ui.sbForce.value()
         nrOfHits = self.ui.sbNrOfHits.value()
 
-        self.monitor = Monitor_Ctl(self, duration, nrOfHits, force)
-        self.monitor.center()
-        self.monitor.setModal(True)
+        monitor = Monitor_Ctl(duration, nrOfHits, force)
+        monitor.center()
+        monitor.setModal(True)
+
         self.hide()
-        self.monitor.exec_()
+        monitor.exec_()
+
         self.show()
         self.resetGUI()
 
     def resetGUI(self):
-        self.ui.sbDuration.setValue(60)
-        self.ui.sbForce.setValue(10)
+        self.ui.sbDuration.setValue(5)
+        self.ui.sbForce.setValue(1)
         self.ui.sbNrOfHits.setValue(5)
+        self.ui.sbDuration.setFocus()
 
     def center(self):
         screen = QtGui.QDesktopWidget().screenGeometry()
         size = self.geometry()
         self.move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2)
-
-    #endregion
-

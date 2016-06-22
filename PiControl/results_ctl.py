@@ -6,9 +6,8 @@ from results_ui import Ui_Results
 
 class Results_Ctl(QtGui.QDialog):
 
-    def __init__(self, parent, punches):
+    def __init__(self, punches):
         super(Results_Ctl, self).__init__()
-        self.parent = parent
         self.ui = Ui_Results()
         self.ui.setupUi(self)
 
@@ -22,11 +21,11 @@ class Results_Ctl(QtGui.QDialog):
         self.ui.btnExit.clicked.connect(self.exit)
 
     def exit(self):
-        self.parent.returnToMain()
         self.close()
 
     def displayResults(self, punches):
         pass
+        self.ui.lblAvgForceResult.setText(str(len(punches)))
 
     def center(self):
         screen = QtGui.QDesktopWidget().screenGeometry()

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>415</width>
-    <height>152</height>
+    <width>698</width>
+    <height>331</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,15 +16,21 @@
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>340</x>
      <y>10</y>
-     <width>391</width>
-     <height>131</height>
+     <width>351</width>
+     <height>311</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>6</number>
+      </property>
       <item>
        <widget class="QLabel" name="lblRemainingTime">
         <property name="text">
@@ -33,9 +39,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lblTimeResult">
-        <property name="text">
-         <string>TextLabel</string>
+       <widget class="QLCDNumber" name="lblTimeResult">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>60</height>
+         </size>
         </property>
        </widget>
       </item>
@@ -43,6 +52,9 @@
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="spacing">
+       <number>6</number>
+      </property>
       <item>
        <widget class="QLabel" name="lblRemainingPunches">
         <property name="text">
@@ -51,9 +63,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lblPunchesResult">
-        <property name="text">
-         <string>TextLabel</string>
+       <widget class="QLCDNumber" name="lblPunchesResult">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>60</height>
+         </size>
         </property>
        </widget>
       </item>
@@ -61,6 +76,9 @@
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <property name="spacing">
+       <number>6</number>
+      </property>
       <item>
        <widget class="QLabel" name="lblLastPunchForce">
         <property name="text">
@@ -69,9 +87,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lblLastForceResult">
-        <property name="text">
-         <string>TextLabel</string>
+       <widget class="QLCDNumber" name="lblLastForceResult">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>60</height>
+         </size>
         </property>
        </widget>
       </item>
@@ -79,6 +100,9 @@
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <property name="spacing">
+       <number>6</number>
+      </property>
       <item>
        <widget class="QLabel" name="lblMaxForce">
         <property name="text">
@@ -87,9 +111,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lblMaxForceResult">
-        <property name="text">
-         <string>TextLabel</string>
+       <widget class="QLCDNumber" name="lblMaxForceResult">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>60</height>
+         </size>
         </property>
        </widget>
       </item>
@@ -107,6 +134,25 @@
      </layout>
     </item>
    </layout>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>80</y>
+     <width>311</width>
+     <height>171</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap>icons/poodle.png</pixmap>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
+   </property>
   </widget>
  </widget>
  <resources/>
