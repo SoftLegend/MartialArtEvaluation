@@ -1,20 +1,51 @@
-import time
-from threading import Timer
+import serial
+from time import sleep
 
-remaining_time = 60.0
+ser = serial.Serial('/dev/ttyUSB0',
+                    9600,
+                    timeout=2,
+                    xonxoff=False,
+                    rtscts=False,
+                    dsrdtr=False) #Tried with and without the last 3 parameters, and also at 1Mbps, same happens.
+ser.flushInput()
+ser.flushOutput()
+while True:
+  data_raw = ser.readline()
+  print(data_raw.strip())
+  sleep(0.02)
 
-def print_time():
-    global remaining_time
-    remaining_time = remaining_time - 0.25
-    print("%f\t\t%s" % (remaining_time, time.time()))
 
-    thread = Timer(0.25, print_time, ())
-    thread.start()
+"""
+import usb.core
+import usb.util
 
+# Find our device
+dev = usb.core.find(find_all=True)
+busses = usb.busses()
+# Was it found?
+if dev is None:
+    raise ValueError('Device not found')
 
-def print_some_times():
-    print time.time()
-    thread = Timer(0.25, print_time, ())
-    thread.start()
-
-print_some_times()
+for bus in busses:
+    devices = bus.devices
+    for dev in devices:
+        try:
+            _name = usb.util.get_string(dev.dev, 19, 1)
+        except:
+             continue
+        dev.set_configuration()
+        cfg = dev.get_active_configuration()
+        interface_number = cfg[(0,0)].bInterfaceNumber
+        alternate_settting = usb.control.get_interface(interface_number)
+        print "Device name:",_name
+        print "Device:", dev.filename
+        print "  idVendor:",hex(dev.idVendor)
+        print "  idProduct:",hex(dev.idProduct)
+        for config in dev.configurations:
+            print "  Configuration:", config.value
+            print "    Total length:", config.totalLength
+            print "    selfPowered:", config.selfPowered
+            print "    remoteWakeup:", config.remoteWakeup
+            print "    maxPower:", config.maxPower
+        print ""
+"""

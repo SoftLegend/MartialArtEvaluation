@@ -40,9 +40,9 @@ class Main_ctl(QtGui.QDialog):
         self.resetGUI()
 
     def resetGUI(self):
-        self.ui.sbDuration.setValue(5)
+        self.ui.sbDuration.setValue(60)
         self.ui.sbForce.setValue(1)
-        self.ui.sbNrOfHits.setValue(5)
+        self.ui.sbNrOfHits.setValue(100)
         self.ui.sbDuration.setFocus()
 
     def center(self):

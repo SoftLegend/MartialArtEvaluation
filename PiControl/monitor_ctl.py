@@ -4,8 +4,10 @@ __author__ = 'nataniel'
 from PyQt4 import QtGui, QtCore
 from monitor_ui import Ui_Monitor
 from results_ctl import Results_Ctl
-import time
 from threading import Timer
+import serial
+from time import sleep
+
 
 class Monitor_Ctl(QtGui.QDialog):
     TIMER_INTERVAL = 0.25
@@ -26,8 +28,26 @@ class Monitor_Ctl(QtGui.QDialog):
         self.punches = []
         self.canceled = False
 
+        # Display variables
+        self.dispTime = None
+        self.dispLastForce = None
+        self.dispMaxForce = None
+        self.dispRemainingPunches = None
+
+
         # Connect events
         self._setupGUI()
+
+        # Initialize USB connection
+        self.serial = serial.Serial('/dev/ttyUSB0',
+                                    9600,
+                                    timeout=2,
+                                    xonxoff=False,
+                                    rtscts=False,
+                                    dsrdtr=False)
+
+        self.serial.flushInput()
+        self.serial.flushOutput()
 
         # Initialize timer
         self.initializeTimer()
@@ -44,6 +64,7 @@ class Monitor_Ctl(QtGui.QDialog):
     def _setupEvents(self):
         self.connect(self, QtCore.SIGNAL('finished()'), self.showResults)
         self.connect(self, QtCore.SIGNAL('canceled()'), self.close)
+        self.connect(self, QtCore.SIGNAL('update()'), self.drawResults)
         self.ui.btnCancel.clicked.connect(self.cancel)
 
     def cancel(self):
@@ -54,12 +75,19 @@ class Monitor_Ctl(QtGui.QDialog):
         size = self.geometry()
         self.move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2)
 
+    def drawResults(self):
+        self.ui.lblTimeResult.display(self.dispTime)
+        self.ui.lblLastForceResult.display(self.dispLastForce)
+        self.ui.lblMaxForceResult.display(self.dispMaxForce)
+        self.ui.lblPunchesResult.display(self.dispRemainingPunches)
+
+
     def initializeTimer(self):
         thread = Timer(self.TIMER_INTERVAL, self.process, ())
         thread.start()
 
     def showResults(self):
-        results = Results_Ctl(self.punches)
+        results = Results_Ctl(self.duration, self.punches)
         results.center()
         results.setModal(True)
         self.hide()
@@ -70,11 +98,21 @@ class Monitor_Ctl(QtGui.QDialog):
     def _readPunch(self):
         # Reading punch
         # TODO: Write logic to read a punch's force
-        # Using test data
-        force = self.testData[0]
-        self.testData = self.testData[1:]
+        raw_data = self.serial.readline()
+        raw_data = raw_data.strip()
 
-        return force
+        if raw_data in [None, 'inf']:
+            return 0.0
+
+        print(raw_data)
+
+        return float(raw_data)
+
+        # Using test data
+        #force = self.testData[0]
+        #self.testData = self.testData[1:]
+
+        #return force
 
     def _isPunch(self, force):
         # Check if it's not noise
@@ -105,15 +143,12 @@ class Monitor_Ctl(QtGui.QDialog):
 
     def _updateGUIWithPunch(self, force):
         # Update GUI
-        dispTime = "{0:.2f}".format(self.remainingTime)
-        dispLastForce = force
-        dispMaxForce = self.maxForce
-        dispRemainingPunches = max(self.remainingPunches, 0)
+        self.dispTime = "{0:.2f}".format(self.remainingTime)
+        self.dispLastForce = force
+        self.dispMaxForce = self.maxForce
+        self.dispRemainingPunches = max(self.remainingPunches, 0)
 
-        self.ui.lblTimeResult.display(dispTime)
-        self.ui.lblLastForceResult.display(dispLastForce)
-        self.ui.lblMaxForceResult.display(dispMaxForce)
-        self.ui.lblPunchesResult.display(dispRemainingPunches)
+        self.emit(QtCore.SIGNAL('update()'))
 
     def process(self):
         if self.canceled:
@@ -124,7 +159,11 @@ class Monitor_Ctl(QtGui.QDialog):
         self.remainingTime -= self.TIMER_INTERVAL
 
         # Reading punch
-        force = self._readPunch()
+        try:
+            force = self._readPunch()
+        except:
+            print("Error reading punch")
+            force = 0.0
 
         if self._isPunch(force):
             self._evaluatePunch(force)
