@@ -41,7 +41,7 @@ class Monitor_Ctl(QtGui.QDialog):
         # Initialize USB connection
         self.serial = serial.Serial('/dev/ttyUSB0',
                                     9600,
-                                    timeout=2,
+                                    timeout=0.1,
                                     xonxoff=False,
                                     rtscts=False,
                                     dsrdtr=False)
@@ -99,6 +99,7 @@ class Monitor_Ctl(QtGui.QDialog):
         # Reading punch
         # TODO: Write logic to read a punch's force
         raw_data = self.serial.readline()
+        print(raw_data)
         raw_data = raw_data.strip()
 
         if raw_data in [None, 'inf']:
