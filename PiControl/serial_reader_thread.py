@@ -6,16 +6,13 @@ class SerialReadThread(object):
 
     BUFFER_SIZE = 10
 
-    def initialize_buffer(self):
-        self.data = [0] * self.BUFFER_SIZE
-        self.CANCEL = False
-
     def cancel(self):
         self.CANCEL = True
 
     def __init__(self):
+        self.CANCEL = False
         self.lock = threading.Lock()
-        self.initialize_buffer()
+        self.data = [0] * self.BUFFER_SIZE
         self.position = 0
 
     def serial_read(self, usb_port):
@@ -33,7 +30,6 @@ class SerialReadThread(object):
         while not self.CANCEL:
             read_data = ser.readline()
             read_data = read_data.strip()
-            #print(read_data)
 
             try:
                 float(read_data)
@@ -48,8 +44,23 @@ class SerialReadThread(object):
     def get_data(self):
         self.lock.acquire()
 
-        return_data = self.data
-        self.initialize_buffer()
+        #self.data = [0,0,0,1,1,1,1,1,1,1]
+
+        return_data = self.data[:]
+
+        current_pos = self.position % self.BUFFER_SIZE
+        tmp = current_pos
+        # In punch, look for previous 0.0
+        if self.data[tmp] > 0.0:
+            while (tmp > (current_pos - self.BUFFER_SIZE)) and (self.data[tmp] > 0.0):
+                tmp -= 1
+
+        # Clear buffer
+        for i in xrange(1, self.BUFFER_SIZE):
+            if i in xrange(tmp + 1, current_pos):
+                return_data[i] = 0.0
+            else:
+                self.data[i] = 0.0
 
         self.lock.release()
 
