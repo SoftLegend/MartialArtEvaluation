@@ -5,7 +5,7 @@ from PyQt4 import QtGui, QtCore
 from monitor_ui import Ui_Monitor
 from results_ctl import Results_Ctl
 from threading import Timer
-import serial
+from serial_reader_thread import SerialReadThread
 from time import sleep
 
 
@@ -38,16 +38,9 @@ class Monitor_Ctl(QtGui.QDialog):
         # Connect events
         self._setupGUI()
 
-        # Initialize USB connection
-        self.serial = serial.Serial('/dev/ttyUSB0',
-                                    9600,
-                                    timeout=0.1,
-                                    xonxoff=False,
-                                    rtscts=False,
-                                    dsrdtr=False)
-
-        self.serial.flushInput()
-        self.serial.flushOutput()
+        # Initialize reader thread
+        self.serial = SerialReadThread()
+        self.thread = self.serial.start_thread()
 
         # Initialize timer
         self.initializeTimer()
@@ -87,6 +80,11 @@ class Monitor_Ctl(QtGui.QDialog):
         thread.start()
 
     def showResults(self):
+        # Close serial reader thread
+        self.serial.cancel()
+        if self.thread is not None:
+            self.thread.join()
+
         results = Results_Ctl(self.duration, self.punches)
         results.center()
         results.setModal(True)
@@ -97,23 +95,17 @@ class Monitor_Ctl(QtGui.QDialog):
 
     def _readPunch(self):
         # Reading punch
-        # TODO: Write logic to read a punch's force
-        raw_data = self.serial.readline()
-        print(raw_data)
-        raw_data = raw_data.strip()
+        raw_data = self.serial.get_data()
 
-        if raw_data in [None, 'inf']:
+        filtered_data = filter((lambda x: x > 0.1), raw_data)
+
+        if len(filtered_data) == 0:
             return 0.0
 
-        print(raw_data)
+        print(filtered_data)
 
-        return float(raw_data)
-
-        # Using test data
-        #force = self.testData[0]
-        #self.testData = self.testData[1:]
-
-        #return force
+        # Return value in Kg not in g
+        return float(max(filtered_data)) / 1000.0
 
     def _isPunch(self, force):
         # Check if it's not noise

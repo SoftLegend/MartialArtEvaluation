@@ -1,6 +1,5 @@
 import threading
 import serial
-from time import sleep
 
 
 class SerialReadThread(object):
@@ -9,11 +8,15 @@ class SerialReadThread(object):
 
     def initialize_buffer(self):
         self.data = [0] * self.BUFFER_SIZE
-        self.position = 0
+        self.CANCEL = False
+
+    def cancel(self):
+        self.CANCEL = True
 
     def __init__(self):
         self.lock = threading.Lock()
         self.initialize_buffer()
+        self.position = 0
 
     def serial_read(self, usb_port):
         print("Serial reader thread started\n")
@@ -27,8 +30,7 @@ class SerialReadThread(object):
 
         ser.flushInput()
         ser.flushOutput()
-        while True:
-            self.lock.acquire()
+        while not self.CANCEL:
             read_data = ser.readline()
             read_data = read_data.strip()
             #print(read_data)
@@ -38,12 +40,9 @@ class SerialReadThread(object):
             except:
                 read_data = 0.0
 
-            self.data[self.position] = float(read_data)
+            self.lock.acquire()
+            self.data[self.position % self.BUFFER_SIZE] = float(read_data)
             self.position += 1
-
-            if self.position >= self.BUFFER_SIZE:
-                self.position = 0
-
             self.lock.release()
 
     def get_data(self):
