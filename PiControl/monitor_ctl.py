@@ -6,8 +6,12 @@ from monitor_ui import Ui_Monitor
 from results_ctl import Results_Ctl
 from threading import Timer
 from serial_reader_thread import SerialReadThread
-from time import sleep
 
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    def _fromUtf8(s):
+        return s
 
 class Monitor_Ctl(QtGui.QDialog):
     TIMER_INTERVAL = 0.25
@@ -74,6 +78,23 @@ class Monitor_Ctl(QtGui.QDialog):
         self.ui.lblMaxForceResult.display(self.dispMaxForce)
         self.ui.lblPunchesResult.display(self.dispRemainingPunches)
 
+        # Update UI picture
+        force = float(self.dispLastForce)
+
+        self.ui.label.clear()
+
+        if force < 2:
+            self.ui.label.setPixmap(QtGui.QPixmap(_fromUtf8("icons/poodle.png")))
+        elif force < 4:
+            self.ui.label.setPixmap(QtGui.QPixmap(_fromUtf8("icons/rabbit.png")))
+        elif force < 6:
+            self.ui.label.setPixmap(QtGui.QPixmap(_fromUtf8("icons/bull.png")))
+        elif force < 8:
+            self.ui.label.setPixmap(QtGui.QPixmap(_fromUtf8("icons/tiger.png")))
+        else:
+            self.ui.label.setPixmap(QtGui.QPixmap(_fromUtf8("icons/t_rex.png")))
+
+        self.ui.label.setScaledContents(True)
 
     def initializeTimer(self):
         thread = Timer(self.TIMER_INTERVAL, self.process, ())
