@@ -4,6 +4,7 @@ __author__ = 'nataniel'
 from PyQt4 import QtGui, QtCore
 from results_ui import Ui_Results
 import numpy as np
+from constants import POWER_RANKING_FILE, SPEED_RANKING_FILE
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -14,11 +15,12 @@ except AttributeError:
 
 class Results_Ctl(QtGui.QDialog):
 
-    def __init__(self, duration, punches):
+    def __init__(self, name, duration, punches):
         super(Results_Ctl, self).__init__()
         self.ui = Ui_Results()
         self.ui.setupUi(self)
 
+        self.name = name
         self.duration = duration
         self.punches = punches
 
@@ -30,6 +32,16 @@ class Results_Ctl(QtGui.QDialog):
 
     def _setupEvents(self):
         self.ui.btnExit.clicked.connect(self.exit)
+
+    def updateRanking(self, force, hitsPerSec):
+        f = open(POWER_RANKING_FILE, 'a')
+        f.write('%s,%d\n' % (self.name, force))
+        f.close()
+
+        f = open(SPEED_RANKING_FILE, 'a')
+        f.write('%s,%d\n' % (self.name, hitsPerSec))
+        f.close()
+
 
     def exit(self):
         self.close()
@@ -53,6 +65,8 @@ class Results_Ctl(QtGui.QDialog):
         maxForce = round(max(force), 2)
         punchesPerSecond = round(len(self.punches) / self.duration, 2)
         validPunchesPerSecond = round(len(validForce) / self.duration, 2)
+
+        self.updateRanking(maxForce, validPunchesPerSecond)
 
         self.ui.lblAvgForceResult.setText(str(avgForce))
         self.ui.lblAvgForceValidResult.setText(str(avgForceValid))

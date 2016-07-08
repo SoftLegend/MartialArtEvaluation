@@ -4,7 +4,7 @@ import serial
 
 class SerialReadThread(object):
 
-    BUFFER_SIZE = 10
+    BUFFER_SIZE = 40  # 10
 
     def cancel(self):
         self.CANCEL = True

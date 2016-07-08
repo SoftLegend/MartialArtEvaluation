@@ -14,14 +14,16 @@ except AttributeError:
         return s
 
 class Monitor_Ctl(QtGui.QDialog):
-    TIMER_INTERVAL = 0.25
+    TIMER_INTERVAL = 1
+    THRESHOLD = 0.5
 
-    def __init__(self, duration, nrOfPunches, minimumForce):
+    def __init__(self, name, duration, nrOfPunches, minimumForce):
         super(Monitor_Ctl, self).__init__()
         self.ui = Ui_Monitor()
         self.ui.setupUi(self)
 
         # Setup variables
+        self.name = name
         self.duration = duration
         self.nrOfPunches = nrOfPunches
         self.minimumForce = minimumForce
@@ -38,7 +40,6 @@ class Monitor_Ctl(QtGui.QDialog):
         self.dispMaxForce = None
         self.dispRemainingPunches = None
 
-
         # Connect events
         self._setupGUI()
 
@@ -50,9 +51,9 @@ class Monitor_Ctl(QtGui.QDialog):
         self.initializeTimer()
 
         # Generating test data
-        self.testData = []
-        for i in range(0, 100):
-            self.testData += [i];
+        #self.testData = []
+        #for i in range(0, 100):
+        #    self.testData += [i];
 
     def _setupGUI(self):
         self._setupEvents()
@@ -106,7 +107,7 @@ class Monitor_Ctl(QtGui.QDialog):
         if self.thread is not None:
             self.thread.join()
 
-        results = Results_Ctl(self.duration, self.punches)
+        results = Results_Ctl(self.name, self.duration, self.punches)
         results.center()
         results.setModal(True)
         self.hide()
@@ -118,15 +119,31 @@ class Monitor_Ctl(QtGui.QDialog):
         # Reading punch
         raw_data = self.serial.get_data()
 
-        filtered_data = filter((lambda x: x > 0.1), raw_data)
+        # Split punches
+        split_data = []
+        done = False
 
-        if len(filtered_data) == 0:
-            return 0.0
+        for data in raw_data:
+            if data >= self.THRESHOLD:
+                if not done:
+                    split_data.append([])
+                    done = True
+                split_data[-1].append(data)
+            else:
+                done = False
 
-        print(filtered_data)
+        if len(split_data) == 0:
+            return [0.0]
 
-        # Return value in Kg not in g
-        return float(max(filtered_data)) / 1000.0
+        res = [0.0] * len(split_data)
+
+        # For each punch, get the maximum value
+        for idx, data in enumerate(split_data):
+            # Return value in Kg not in g
+            res[idx] = float(max(data)) / 1000.0
+
+        # Return list of punches
+        return res
 
     def _isPunch(self, force):
         # Check if it's not noise
@@ -153,8 +170,6 @@ class Monitor_Ctl(QtGui.QDialog):
         # Debug information
         print("%f\t\t%d\t\t%s" % (self.remainingTime, force, isValidPunch))
 
-        self._updateGUIWithPunch(force)
-
     def _updateGUIWithPunch(self, force):
         # Update GUI
         self.dispTime = "{0:.2f}".format(self.remainingTime)
@@ -174,13 +189,18 @@ class Monitor_Ctl(QtGui.QDialog):
 
         # Reading punch
         try:
-            force = self._readPunch()
+            punches = self._readPunch()
         except:
             print("Error reading punch")
-            force = 0.0
+            punches = []
 
-        if self._isPunch(force):
-            self._evaluatePunch(force)
+        for force in punches:
+            if self._isPunch(force):
+                self._evaluatePunch(force)
+            else:
+                print("No punch detected")
+
+            self._updateGUIWithPunch(force)
 
         # Reset timer
         if self.remainingTime > 0:
