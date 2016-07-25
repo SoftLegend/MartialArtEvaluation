@@ -18,6 +18,8 @@ class Main_ctl(QtGui.QDialog):
     def _setupGUI(self):
         self._setupEvents()
         self.resetGUI()
+        self.ui.txtName_P1.setText("Batman")
+        self.ui.txtName_P2.setText("Superman")
 
         self.ui.btnStart.setFocus()
 
@@ -27,16 +29,17 @@ class Main_ctl(QtGui.QDialog):
         self.ui.btnRanking.clicked.connect(self.showRanking)
 
     def start(self):
-        name = str(self.ui.txtName.text())
+        nameP1 = str(self.ui.txtName_P1.text())
+        nameP2 = str(self.ui.txtName_P2.text())
 
-        if name.strip() in ['', ',']:
+        if nameP1.strip() in ['', ',']:
             return
 
         duration = self.ui.sbDuration.value()
         force = self.ui.sbForce.value()
         nrOfHits = self.ui.sbNrOfHits.value()
 
-        monitor = Monitor_Ctl(name, duration, nrOfHits, force)
+        monitor = Monitor_Ctl(nameP1, nameP2, duration, nrOfHits, force)
         monitor.center()
         monitor.setModal(True)
 
@@ -47,9 +50,9 @@ class Main_ctl(QtGui.QDialog):
         self.resetGUI()
 
     def resetGUI(self):
-        self.ui.sbDuration.setValue(60)
+        self.ui.sbDuration.setValue(10)
         self.ui.sbForce.setValue(1)
-        self.ui.sbNrOfHits.setValue(100)
+        self.ui.sbNrOfHits.setValue(20)
         self.ui.sbDuration.setFocus()
 
     def showRanking(self):

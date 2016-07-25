@@ -6,6 +6,7 @@ from monitor_ui import Ui_Monitor
 from results_ctl import Results_Ctl
 from threading import Timer
 from serial_reader_thread import SerialReadThread
+import numpy as np
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -15,18 +16,23 @@ except AttributeError:
 
 class Monitor_Ctl(QtGui.QDialog):
     TIMER_INTERVAL = 1
+    PLAYER_CHANGE_INTERVAL = 5
     THRESHOLD = 0.5
 
-    def __init__(self, name, duration, nrOfPunches, minimumForce):
+    def __init__(self, nameP1, nameP2, duration, nrOfPunches, minimumForce):
         super(Monitor_Ctl, self).__init__()
         self.ui = Ui_Monitor()
         self.ui.setupUi(self)
 
         # Setup variables
-        self.name = name
+        self.player2Pending = nameP1.strip() != ""
+        self.changingPlayer = False
+        self.nameP1 = nameP1
+        self.nameP2 = nameP2
         self.duration = duration
         self.nrOfPunches = nrOfPunches
         self.minimumForce = minimumForce
+        self.punchesP1 = []
 
         self.remainingTime = self.duration
         self.remainingPunches = self.nrOfPunches
@@ -50,20 +56,53 @@ class Monitor_Ctl(QtGui.QDialog):
         # Initialize timer
         self.initializeTimer()
 
-        # Generating test data
-        #self.testData = []
-        #for i in range(0, 100):
-        #    self.testData += [i];
-
     def _setupGUI(self):
         self._setupEvents()
-        self.ui.btnResult.setVisible(False)
+        self.ui.lblChangingPlayer.setVisible(False)
+        self.ui.lblComparison.setVisible(False)
 
     def _setupEvents(self):
         self.connect(self, QtCore.SIGNAL('finished()'), self.showResults)
         self.connect(self, QtCore.SIGNAL('canceled()'), self.close)
         self.connect(self, QtCore.SIGNAL('update()'), self.drawResults)
+        self.connect(self, QtCore.SIGNAL('changedPlayer()'), self.notifyChangedPlayer)
+        self.connect(self, QtCore.SIGNAL('changingPlayer()'), self.notifyChangingPlayer)
         self.ui.btnCancel.clicked.connect(self.cancel)
+
+    def notifyWinning(self):
+        palette = QtGui.QPalette()
+        brush = QtGui.QBrush(QtGui.QColor(0, 0, 255))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.WindowText, brush)
+        brush = QtGui.QBrush(QtGui.QColor(0, 0, 255))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush)
+        brush = QtGui.QBrush(QtGui.QColor(159, 158, 158))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
+        self.ui.lblComparison.setPalette(palette)
+        self.ui.lblComparison.setText("You are winning")
+
+    def notifyLosing(self):
+        palette = QtGui.QPalette()
+        brush = QtGui.QBrush(QtGui.QColor(255, 0, 0))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.WindowText, brush)
+        brush = QtGui.QBrush(QtGui.QColor(255, 0, 0))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush)
+        brush = QtGui.QBrush(QtGui.QColor(159, 158, 158))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
+        self.ui.lblComparison.setPalette(palette)
+        self.ui.lblComparison.setText("You are losing")
+
+    def notifyChangedPlayer(self):
+        self.ui.lblChangingPlayer.setVisible(False)
+
+    def notifyChangingPlayer(self):
+        self.ui.lblComparison.setVisible(True)
+        self.ui.lblChangingPlayer.setVisible(True)
 
     def cancel(self):
         self.canceled = True
@@ -80,7 +119,12 @@ class Monitor_Ctl(QtGui.QDialog):
         self.ui.lblPunchesResult.display(self.dispRemainingPunches)
 
         # Update UI picture
-        force = float(self.dispLastForce)
+        validPunches = filter(self.validPunch, self.punches)
+        validForce = [x[1] for x in validPunches]
+        force = 0.0
+
+        if len(validForce) > 0:
+            force = round(np.mean(validForce), 2)
 
         self.ui.label.clear()
 
@@ -97,6 +141,11 @@ class Monitor_Ctl(QtGui.QDialog):
 
         self.ui.label.setScaledContents(True)
 
+        if self.isPlayer1Winning():
+            self.notifyLosing()
+        else:
+            self.notifyWinning()
+
     def initializeTimer(self):
         thread = Timer(self.TIMER_INTERVAL, self.process, ())
         thread.start()
@@ -107,13 +156,53 @@ class Monitor_Ctl(QtGui.QDialog):
         if self.thread is not None:
             self.thread.join()
 
-        results = Results_Ctl(self.name, self.duration, self.punches)
+        player1Won = self.isPlayer1Winning()
+
+        results = Results_Ctl(self.nameP1, self.duration, self.punchesP1)
         results.center()
         results.setModal(True)
-        self.hide()
+        if player1Won:
+            results.won()
+        else:
+            results.lost()
 
+        if self.nameP2.strip() != "":
+            results2 = Results_Ctl(self.nameP2, self.duration, self.punches)
+            results.moveLeft()
+            results2.center()
+            results2.setModal(True)
+            results2.ui.btnExit.setVisible(False)
+            if not player1Won:
+                results2.won()
+            else:
+                results2.lost()
+            results2.show()
+
+        self.hide()
         results.exec_()
         self.close()
+
+    def validPunch(self, val):
+        return val[2]
+
+    def isPlayer1Winning(self):
+        if len(self.punchesP1) == 0:
+            return True
+
+        validPunchesP1 = filter(self.validPunch, self.punchesP1)
+        validForceP1 = [x[1] for x in validPunchesP1]
+        avgForceValidP1 = 0.0
+        avgForceValidP2 = 0.0
+
+        if len(validForceP1) > 0:
+            avgForceValidP1 = round(np.mean(validForceP1), 2)
+
+        validPunchesP2 = filter(self.validPunch, self.punches)
+        validForceP2 = [x[1] for x in validPunchesP2]
+        if len(validForceP2) > 0:
+            avgForceValidP2 = round(np.mean(validForceP2), 2)
+
+        return avgForceValidP1 >= avgForceValidP2
 
     def _readPunch(self):
         # Reading punch
@@ -187,24 +276,52 @@ class Monitor_Ctl(QtGui.QDialog):
         # Remaining time
         self.remainingTime -= self.TIMER_INTERVAL
 
-        # Reading punch
-        try:
-            punches = self._readPunch()
-        except:
-            print("Error reading punch")
-            punches = []
+        if not self.changingPlayer:
+            # Reading punch
+            try:
+                punches = self._readPunch()
+            except:
+                print("Error reading punch")
+                punches = []
 
-        for force in punches:
-            if self._isPunch(force):
-                self._evaluatePunch(force)
-            else:
-                print("No punch detected")
+            for force in punches:
+                if self._isPunch(force):
+                    self._evaluatePunch(force)
+                else:
+                    print("No punch detected")
 
-            self._updateGUIWithPunch(force)
+                self._updateGUIWithPunch(force)
 
         # Reset timer
         if self.remainingTime > 0:
             thread = Timer(self.TIMER_INTERVAL, self.process, ())
             thread.start()
         else:
-            self.emit(QtCore.SIGNAL('finished()'))
+            if self.player2Pending:
+                # Reset variables for player 2
+                self.player2Pending = False
+                self.remainingPunches = self.nrOfPunches
+                self.remainingTime = self.PLAYER_CHANGE_INTERVAL
+                self.punchesP1 = self.punches
+                self.punches = []
+                self.dispTime = 0.0
+                self.dispLastForce = 0.0
+                self.dispMaxForce = 0.0
+                self.dispRemainingPunches = 0
+                self.changingPlayer = True
+
+                # Emit player changing signal and wait
+                self.emit(QtCore.SIGNAL('changingPlayer()'))
+                thread = Timer(self.TIMER_INTERVAL, self.process, ())
+                thread.start()
+            elif self.changingPlayer:
+                # Emit player changed signal and start new timer
+                self.remainingTime = self.duration
+                self.changingPlayer = False
+                self.dispTime = self.duration
+                self.dispRemainingPunches = self.nrOfPunches
+                self.emit(QtCore.SIGNAL('changedPlayer()'))
+                thread = Timer(self.TIMER_INTERVAL, self.process, ())
+                thread.start()
+            else:
+                self.emit(QtCore.SIGNAL('finished()'))

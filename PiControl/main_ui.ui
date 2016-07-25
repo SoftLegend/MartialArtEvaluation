@@ -43,7 +43,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>icons/clock.png</pixmap>
+         <pixmap>icons/batman.png</pixmap>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -82,7 +82,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>icons/clock.png</pixmap>
+         <pixmap>icons/superman.png</pixmap>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>

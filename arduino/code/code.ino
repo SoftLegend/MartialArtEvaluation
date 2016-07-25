@@ -1,7 +1,7 @@
-const int PIN1 = A1; // Pin connected to FSR/resistor divider
-const int PIN2 = A2; // Pin connected to FSR/resistor divider
-const int PIN3 = A3; // Pin connected to FSR/resistor divider
-const int PIN4 = A4; // Pin connected to FSR/resistor divider
+//const int PIN1 = A1; // Pin connected to FSR/resistor divider
+//const int PIN2 = A2; // Pin connected to FSR/resistor divider
+//const int PIN3 = A3; // Pin connected to FSR/resistor divider
+//const int PIN4 = A4; // Pin connected to FSR/resistor divider
 
 // Measure the voltage at 5V and resistance of your 3.3k resistor, and enter
 // their value's below:
@@ -45,10 +45,10 @@ void setup()
 
 void loop()
 {
-  int fsrADC1 = analogRead(PIN1);
-  int fsrADC2 = analogRead(PIN2);
-  int fsrADC3 = analogRead(PIN3);
-  int fsrADC4 = analogRead(PIN4);
+  int fsrADC1 = analogRead(A1);
+  int fsrADC2 = analogRead(A3);
+  int fsrADC3 = analogRead(A4);
+  int fsrADC4 = analogRead(A2);
   
   float force1 = process(fsrADC1);
   float force2 = process(fsrADC2);
@@ -69,10 +69,10 @@ void loop()
     dtostrf(force4, 7, 3, sForce4);
 
     // DEBUG prints...
-    Serial.println(String("1   ") + String(sForce1));
-    Serial.println(String("2   ") + String(sForce2));
-    Serial.println(String("3   ") + String(sForce3));
-    Serial.println(String("4   ") + String(sForce4));
+    //Serial.println(String("0   ") + String(sForce1));
+    //Serial.println(String("1   ") + String(sForce2));
+    //Serial.println(String("2   ") + String(sForce3));
+    //Serial.println(String("3   ") + String(sForce4));
 
     // Max force
     float maxForce = force1;
@@ -85,6 +85,7 @@ void loop()
       
     //Serial.println(String(maxForce));
     delay(50);
+    //delay(1000);
   }
   else
   {

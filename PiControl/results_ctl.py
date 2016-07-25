@@ -19,6 +19,7 @@ class Results_Ctl(QtGui.QDialog):
         super(Results_Ctl, self).__init__()
         self.ui = Ui_Results()
         self.ui.setupUi(self)
+        self.setWindowTitle("Results: " + name)
 
         self.name = name
         self.duration = duration
@@ -41,7 +42,6 @@ class Results_Ctl(QtGui.QDialog):
         f = open(SPEED_RANKING_FILE, 'a')
         f.write('%s,%d\n' % (self.name, hitsPerSec))
         f.close()
-
 
     def exit(self):
         self.close()
@@ -92,7 +92,40 @@ class Results_Ctl(QtGui.QDialog):
 
         self.ui.label.setScaledContents(True)
 
+    def moveLeft(self):
+        screen = QtGui.QDesktopWidget().screenGeometry()
+        size = self.geometry()
+        self.move(0, (screen.height() - size.height()) / 2)
+
     def center(self):
         screen = QtGui.QDesktopWidget().screenGeometry()
         size = self.geometry()
         self.move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2)
+
+    def won(self):
+        palette = QtGui.QPalette()
+        brush = QtGui.QBrush(QtGui.QColor(0, 0, 255))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.WindowText, brush)
+        brush = QtGui.QBrush(QtGui.QColor(0, 0, 255))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush)
+        brush = QtGui.QBrush(QtGui.QColor(159, 158, 158))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
+        self.ui.lblWonLost.setPalette(palette)
+        self.ui.lblWonLost.setText("You WON!")
+
+    def lost(self):
+        palette = QtGui.QPalette()
+        brush = QtGui.QBrush(QtGui.QColor(255, 0, 0))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.WindowText, brush)
+        brush = QtGui.QBrush(QtGui.QColor(255, 0, 0))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush)
+        brush = QtGui.QBrush(QtGui.QColor(159, 158, 158))
+        brush.setStyle(QtCore.Qt.SolidPattern)
+        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
+        self.ui.lblWonLost.setPalette(palette)
+        self.ui.lblWonLost.setText("You LOST!")
