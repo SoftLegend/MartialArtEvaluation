@@ -79,13 +79,13 @@ class Results_Ctl(QtGui.QDialog):
 
         self.ui.label.clear()
 
-        if maxForce < 2:
+        if avgForceValid < 2:
             self.ui.label.setPixmap(QtGui.QPixmap(_fromUtf8("icons/poodle.png")))
-        elif maxForce < 4:
+        elif avgForceValid < 4:
             self.ui.label.setPixmap(QtGui.QPixmap(_fromUtf8("icons/rabbit.png")))
-        elif maxForce < 6:
+        elif avgForceValid < 6:
             self.ui.label.setPixmap(QtGui.QPixmap(_fromUtf8("icons/bull.png")))
-        elif maxForce < 8:
+        elif avgForceValid < 8:
             self.ui.label.setPixmap(QtGui.QPixmap(_fromUtf8("icons/tiger.png")))
         else:
             self.ui.label.setPixmap(QtGui.QPixmap(_fromUtf8("icons/t_rex.png")))
