@@ -34,3 +34,7 @@ Batman,0
 Superman,2
 Batman,2
 Superman,2
+Batman,5
+Superman,4
+Batman,3
+Superman,4

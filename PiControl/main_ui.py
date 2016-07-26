@@ -25,7 +25,12 @@ except AttributeError:
 class Ui_Main(object):
     def setupUi(self, Main):
         Main.setObjectName(_fromUtf8("Main"))
-        Main.resize(300, 278)
+        Main.resize(302, 278)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(Main.sizePolicy().hasHeightForWidth())
+        Main.setSizePolicy(sizePolicy)
         self.verticalLayoutWidget = QtGui.QWidget(Main)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(0, 0, 301, 271))
         self.verticalLayoutWidget.setObjectName(_fromUtf8("verticalLayoutWidget"))
@@ -145,7 +150,6 @@ class Ui_Main(object):
         self.horizontalLayout_2.addWidget(self.sbNrOfHits)
         self.verticalLayout.addLayout(self.horizontalLayout_2)
         self.horizontalLayout_4 = QtGui.QHBoxLayout()
-        self.horizontalLayout_4.setSpacing(0)
         self.horizontalLayout_4.setObjectName(_fromUtf8("horizontalLayout_4"))
         self.btnReset = QtGui.QPushButton(self.verticalLayoutWidget)
         self.btnReset.setObjectName(_fromUtf8("btnReset"))

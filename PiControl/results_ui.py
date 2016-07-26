@@ -25,9 +25,14 @@ except AttributeError:
 class Ui_Results(object):
     def setupUi(self, Results):
         Results.setObjectName(_fromUtf8("Results"))
-        Results.resize(640, 308)
+        Results.resize(677, 306)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(Results.sizePolicy().hasHeightForWidth())
+        Results.setSizePolicy(sizePolicy)
         self.horizontalLayoutWidget = QtGui.QWidget(Results)
-        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(9, 10, 621, 291))
+        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(9, 10, 661, 291))
         self.horizontalLayoutWidget.setObjectName(_fromUtf8("horizontalLayoutWidget"))
         self.horizontalLayout_6 = QtGui.QHBoxLayout(self.horizontalLayoutWidget)
         self.horizontalLayout_6.setObjectName(_fromUtf8("horizontalLayout_6"))

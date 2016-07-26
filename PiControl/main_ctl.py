@@ -47,7 +47,6 @@ class Main_ctl(QtGui.QDialog):
         monitor.exec_()
 
         self.show()
-        self.resetGUI()
 
     def resetGUI(self):
         self.ui.sbDuration.setValue(10)

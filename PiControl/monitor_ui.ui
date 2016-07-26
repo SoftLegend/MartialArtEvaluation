@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>698</width>
+    <width>810</width>
     <height>331</height>
    </rect>
   </property>
@@ -16,10 +16,10 @@
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>340</x>
+     <x>470</x>
      <y>10</y>
-     <width>351</width>
-     <height>311</height>
+     <width>331</width>
+     <height>316</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -139,9 +139,9 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>80</y>
-     <width>311</width>
-     <height>201</height>
+     <y>20</y>
+     <width>401</width>
+     <height>261</height>
     </rect>
    </property>
    <property name="text">
@@ -159,8 +159,8 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>681</width>
-     <height>311</height>
+     <width>801</width>
+     <height>321</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -220,14 +220,17 @@
    <property name="text">
     <string>Changing player</string>
    </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
   </widget>
   <widget class="QLabel" name="lblComparison">
    <property name="geometry">
     <rect>
-     <x>70</x>
+     <x>30</x>
      <y>280</y>
-     <width>201</width>
-     <height>31</height>
+     <width>351</width>
+     <height>41</height>
     </rect>
    </property>
    <property name="palette">
@@ -277,6 +280,9 @@
    </property>
    <property name="text">
     <string>You are winning</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
   <zorder>lblComparison</zorder>

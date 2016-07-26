@@ -41,10 +41,10 @@ class SerialReadThread(object):
             self.position += 1
             self.lock.release()
 
+        ser.close()
+
     def get_data(self):
         self.lock.acquire()
-
-        #self.data = [0,0,0,1,1,1,1,1,1,1]
 
         return_data = self.data[:]
 
@@ -67,7 +67,8 @@ class SerialReadThread(object):
         return return_data
 
     def start_thread(self):
-        self.thread = threading.Thread(target=self.serial_read, args=('/dev/ttyUSB0',))
+        f = open("config.txt")
+        usb_port = f.readline()
+        f.close()
+        self.thread = threading.Thread(target=self.serial_read, args=(usb_port,))
         self.thread.start()
-
-        #return self.thread

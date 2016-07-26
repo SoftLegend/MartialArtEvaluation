@@ -33,6 +33,10 @@ class Monitor_Ctl(QtGui.QDialog):
         self.nrOfPunches = nrOfPunches
         self.minimumForce = minimumForce
         self.punchesP1 = []
+        self.avgForceValidP1 = 0.0
+        self.avgForceValidP2 = 0.0
+        self.TMP_validPunchesP1 = []
+        self.TMP_validPunches = []
 
         self.remainingTime = self.duration
         self.remainingPunches = self.nrOfPunches
@@ -51,7 +55,7 @@ class Monitor_Ctl(QtGui.QDialog):
 
         # Initialize reader thread
         self.serial = SerialReadThread()
-        self.thread = self.serial.start_thread()
+        self.serial.start_thread()
 
         # Initialize timer
         self.initializeTimer()
@@ -119,13 +123,10 @@ class Monitor_Ctl(QtGui.QDialog):
         self.ui.lblPunchesResult.display(self.dispRemainingPunches)
 
         # Update UI picture
-        validPunches = filter(self.validPunch, self.punches)
-        validForce = [x[1] for x in validPunches]
-        force = 0.0
-
-        if len(validForce) > 0:
-            force = round(np.mean(validForce), 2)
-
+        if self.avgForceValidP2 > 0:
+            force = self.avgForceValidP2
+        else:
+            force = self.avgForceValidP1
         self.ui.label.clear()
 
         if force < 2:
@@ -189,18 +190,22 @@ class Monitor_Ctl(QtGui.QDialog):
         if len(self.punchesP1) == 0:
             return True
 
-        validPunchesP1 = filter(self.validPunch, self.punchesP1)
-        validForceP1 = [x[1] for x in validPunchesP1]
+        #validPunchesP1 = filter(self.validPunch, self.punchesP1)
+        validForceP1 = [x[1] for x in self.TMP_validPunchesP1]
         avgForceValidP1 = 0.0
         avgForceValidP2 = 0.0
 
         if len(validForceP1) > 0:
             avgForceValidP1 = round(np.mean(validForceP1), 2)
 
-        validPunchesP2 = filter(self.validPunch, self.punches)
-        validForceP2 = [x[1] for x in validPunchesP2]
+        #validPunchesP2 = filter(self.validPunch, self.punches)
+        validForceP2 = [x[1] for x in self.TMP_validPunches]
         if len(validForceP2) > 0:
             avgForceValidP2 = round(np.mean(validForceP2), 2)
+
+        # Store to use in display method
+        self.avgForceValidP1 = avgForceValidP1
+        self.avgForceValidP2 = avgForceValidP2
 
         return avgForceValidP1 >= avgForceValidP2
 
@@ -254,6 +259,10 @@ class Monitor_Ctl(QtGui.QDialog):
 
         # Add punch to log
         punch = [self.remainingTime, force, isValidPunch]
+
+        if isValidPunch:
+            self.TMP_validPunches.append(punch)
+
         self.punches.append(punch)
 
         # Debug information
@@ -270,6 +279,8 @@ class Monitor_Ctl(QtGui.QDialog):
 
     def process(self):
         if self.canceled:
+            # Close serial reader thread
+            self.serial.cancel()
             self.emit(QtCore.SIGNAL('canceled()'))
             return
 
@@ -302,6 +313,8 @@ class Monitor_Ctl(QtGui.QDialog):
                 self.player2Pending = False
                 self.remainingPunches = self.nrOfPunches
                 self.remainingTime = self.PLAYER_CHANGE_INTERVAL
+                self.TMP_validPunchesP1 = self.TMP_validPunches
+                self.TMP_validPunches = []
                 self.punchesP1 = self.punches
                 self.punches = []
                 self.dispTime = 0.0
