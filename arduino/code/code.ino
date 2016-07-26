@@ -75,15 +75,17 @@ void loop()
     //Serial.println(String("3   ") + String(sForce4));
 
     // Max force
-    float maxForce = force1;
+    /*float maxForce = force1;
     if (force2 > maxForce)
       maxForce = force2;
     if (force3 > maxForce)
       maxForce = force3;
     if (force4 > maxForce)
-      maxForce = force4;
-      
-    //Serial.println(String(maxForce));
+      maxForce = force4;*/
+    //Serial.println(maxForce);
+    
+    float totalForce = force1 + force2 + force3 + force4;
+    Serial.println(totalForce);
     delay(50);
     //delay(1000);
   }
