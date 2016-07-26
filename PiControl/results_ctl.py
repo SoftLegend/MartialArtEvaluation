@@ -55,7 +55,7 @@ class Results_Ctl(QtGui.QDialog):
         force = [x[1] for x in self.punches]
         validForce = [x[1] for x in validPunches]
 
-        avgForce = round(np.mean(force), 2) # reduce(lambda x, y: x + y, self.punches) / len(self.punches)
+        avgForce = round(np.mean(force), 2)  # reduce(lambda x, y: x + y, self.punches) / len(self.punches)
 
         if len(validForce) > 0:
             avgForceValid = round(np.mean(validForce), 2)
@@ -64,7 +64,7 @@ class Results_Ctl(QtGui.QDialog):
 
         maxForce = round(max(force), 2)
         punchesPerSecond = round(len(self.punches) / self.duration, 2)
-        validPunchesPerSecond = round(len(validForce) / self.duration, 2)
+        validPunchesPerSecond = round(len(validPunches) / self.duration, 2)
 
         self.updateRanking(maxForce, validPunchesPerSecond)
 

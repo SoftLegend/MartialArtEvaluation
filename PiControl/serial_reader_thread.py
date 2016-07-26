@@ -72,3 +72,5 @@ class SerialReadThread(object):
         f.close()
         self.thread = threading.Thread(target=self.serial_read, args=(usb_port,))
         self.thread.start()
+
+        return self.thread

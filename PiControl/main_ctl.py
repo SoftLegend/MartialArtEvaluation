@@ -32,7 +32,7 @@ class Main_ctl(QtGui.QDialog):
         nameP1 = str(self.ui.txtName_P1.text())
         nameP2 = str(self.ui.txtName_P2.text())
 
-        if nameP1.strip() in ['', ',']:
+        if (nameP1.strip() in ['', ',']) or (nameP2.strip() in ['', ',']):
             return
 
         duration = self.ui.sbDuration.value()

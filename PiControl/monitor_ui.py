@@ -25,9 +25,9 @@ except AttributeError:
 class Ui_Monitor(object):
     def setupUi(self, Monitor):
         Monitor.setObjectName(_fromUtf8("Monitor"))
-        Monitor.resize(810, 331)
+        Monitor.resize(836, 331)
         self.verticalLayoutWidget = QtGui.QWidget(Monitor)
-        self.verticalLayoutWidget.setGeometry(QtCore.QRect(470, 10, 331, 316))
+        self.verticalLayoutWidget.setGeometry(QtCore.QRect(440, 10, 381, 316))
         self.verticalLayoutWidget.setObjectName(_fromUtf8("verticalLayoutWidget"))
         self.verticalLayout = QtGui.QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setSpacing(0)
@@ -89,7 +89,7 @@ class Ui_Monitor(object):
         self.label.setScaledContents(True)
         self.label.setObjectName(_fromUtf8("label"))
         self.lblChangingPlayer = QtGui.QLabel(Monitor)
-        self.lblChangingPlayer.setGeometry(QtCore.QRect(10, 10, 801, 321))
+        self.lblChangingPlayer.setGeometry(QtCore.QRect(10, 0, 821, 321))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
