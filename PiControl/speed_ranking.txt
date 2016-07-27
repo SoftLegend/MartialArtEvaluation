@@ -60,3 +60,17 @@ Batman,0
 Superman,0
 Batman,0
 Superman,0
+Batman,1
+Superman,0
+Batman,1
+Superman,1
+Batman,1
+Superman,1
+Batman,1
+Superman,1
+Batman,0
+Superman,0
+Batman,1
+Superman,0
+Batman,0
+Superman,0

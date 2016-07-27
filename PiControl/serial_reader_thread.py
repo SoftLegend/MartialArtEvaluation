@@ -4,7 +4,8 @@ import serial
 
 class SerialReadThread(object):
 
-    BUFFER_SIZE = 40  # 10
+    BUFFER_SIZE = 20
+    THRESHOLD = 1.0
 
     def cancel(self):
         self.CANCEL = True
@@ -32,12 +33,15 @@ class SerialReadThread(object):
             read_data = read_data.strip()
 
             try:
-                float(read_data)
+                read_data = float(read_data)
+
+                if (read_data / 1000.0) < self.THRESHOLD:
+                    read_data = 0.0
             except:
                 read_data = 0.0
 
             self.lock.acquire()
-            self.data[self.position % self.BUFFER_SIZE] = float(read_data)
+            self.data[self.position % self.BUFFER_SIZE] = read_data
             self.position += 1
             self.lock.release()
 

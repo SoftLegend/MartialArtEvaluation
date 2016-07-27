@@ -17,7 +17,7 @@ except AttributeError:
 class Monitor_Ctl(QtGui.QDialog):
     TIMER_INTERVAL = 1
     PLAYER_CHANGE_INTERVAL = 5
-    THRESHOLD = 0.5
+    THRESHOLD = 1.0
 
     def __init__(self, nameP1, nameP2, duration, nrOfPunches, minimumForce):
         super(Monitor_Ctl, self).__init__()
@@ -210,6 +210,7 @@ class Monitor_Ctl(QtGui.QDialog):
 
         # Split punches
         split_data = []
+
         done = False
 
         for data in raw_data:
@@ -225,6 +226,8 @@ class Monitor_Ctl(QtGui.QDialog):
             return [0.0]
 
         res = [0.0] * len(split_data)
+
+        print("Sample size = %d\n" % len(split_data))
 
         # For each punch, get the maximum value
         for idx, data in enumerate(split_data):
