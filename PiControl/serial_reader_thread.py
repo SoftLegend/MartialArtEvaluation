@@ -66,6 +66,8 @@ class SerialReadThread(object):
             else:
                 self.data[i] = 0.0
 
+        return_data = return_data[current_pos:] + return_data[:current_pos]
+
         self.lock.release()
 
         return return_data
