@@ -17,7 +17,7 @@ except AttributeError:
 class Monitor_Ctl(QtGui.QDialog):
     TIMER_INTERVAL = 1
     PLAYER_CHANGE_INTERVAL = 5
-    THRESHOLD = 1.0
+    THRESHOLD = 1.2
 
     def __init__(self, nameP1, nameP2, duration, nrOfPunches, minimumForce):
         super(Monitor_Ctl, self).__init__()
@@ -157,15 +157,25 @@ class Monitor_Ctl(QtGui.QDialog):
         if self.thread is not None:
             self.thread.join()
 
-        player1Won = self.isPlayer1Winning()
+        enough_punches_p1 = len(self.TMP_validPunchesP1) >= self.nrOfPunches
+        enough_punches_p2 = len(self.TMP_validPunches) >= self.nrOfPunches
+
+        player1_won = self.isPlayer1Winning() and enough_punches_p1
+
+        if player1_won:
+            player2_won = False
+        else:
+            player2_won = enough_punches_p2
 
         results = Results_Ctl(self.nameP1, self.duration, self.punchesP1)
         results.center()
         results.setModal(True)
-        if player1Won:
+        if player1_won:
             results.won()
-        else:
+        elif player2_won:
             results.lost()
+        else:
+            results.draw()
 
         if self.nameP2.strip() != "":
             results2 = Results_Ctl(self.nameP2, self.duration, self.punches)
@@ -173,10 +183,13 @@ class Monitor_Ctl(QtGui.QDialog):
             results2.center()
             results2.setModal(True)
             results2.ui.btnExit.setVisible(False)
-            if not player1Won:
+            if player2_won:
                 results2.won()
-            else:
+            elif player1_won:
                 results2.lost()
+            else:
+                results2.draw()
+
             results2.show()
 
         self.hide()
